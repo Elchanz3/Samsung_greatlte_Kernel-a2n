@@ -330,6 +330,8 @@ static void fvmap_copy_from_sram(void __iomem *map_base, void __iomem *sram_base
 					raw_rvh->table[j].volt = 850000;
 				else if (raw_rvh->table[j].rate == 839000)
 					raw_rvh->table[j].volt = 900000;
+				else if (raw_rvh->table[j].rate == 876000)
+					raw_rvh->table[j].volt = 950000;
 			}
 
 			/* hardcoded cpucl1 voltages */
