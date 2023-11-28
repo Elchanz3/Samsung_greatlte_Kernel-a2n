@@ -303,8 +303,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -Wno-format-overflow -O2 -fomit-frame-pointer -fno-strict-aliasing -std=gnu89
-HOSTCXXFLAGS = -O2 -fomit-frame-pointer -fno-strict-aliasing
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -Wno-format-overflow -O3 -fomit-frame-pointer -fno-strict-aliasing -std=gnu89
+HOSTCXXFLAGS = -O3 -fomit-frame-pointer -fno-strict-aliasing
 
 # Host specific Flags
 HOSTCFLAGS   += -march=core2 -mcpu=core2 -mtune=core2 -pipe
@@ -412,9 +412,9 @@ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	:= $(call cc-option,-Oz,-Os)
 else
 ifdef CONFIG_PROFILE_ALL_BRANCHES
-KBUILD_CFLAGS	:= -O2
+KBUILD_CFLAGS	:= -O3
 else
-KBUILD_CFLAGS   := -O2
+KBUILD_CFLAGS   := -O3
 endif
 endif
 
