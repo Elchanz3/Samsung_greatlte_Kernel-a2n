@@ -28,23 +28,14 @@
 typedef int (*GET_NEXT_LEVEL)(struct exynos_context *platform, int utilization);
 GET_NEXT_LEVEL gpu_dvfs_get_next_level;
 
-/* for ondemand gov */
-extern unsigned int gpu_up_threshold;
-extern bool gpu_boost;
-extern unsigned int gpu_down_threshold;
-extern void calc_gpu_down_threshold(void);
-
-#ifndef BUILD_ONLY_ONDEMAND_GOV
 static int gpu_dvfs_governor_default(struct exynos_context *platform, int utilization);
 static int gpu_dvfs_governor_interactive(struct exynos_context *platform, int utilization);
 static int gpu_dvfs_governor_static(struct exynos_context *platform, int utilization);
 static int gpu_dvfs_governor_booster(struct exynos_context *platform, int utilization);
 static int gpu_dvfs_governor_dynamic(struct exynos_context *platform, int utilization);
-#endif
-static int gpu_dvfs_governor_ondemand(struct exynos_context *platform, int utilization);
 
 static gpu_dvfs_governor_info governor_info[G3D_MAX_GOVERNOR_NUM] = {
-#ifndef BUILD_ONLY_ONDEMAND_GOV
+
 	{
 		G3D_DVFS_GOVERNOR_DEFAULT,
 		"default",
@@ -76,12 +67,6 @@ static gpu_dvfs_governor_info governor_info[G3D_MAX_GOVERNOR_NUM] = {
 		NULL
 	},
 #endif
-	{
-		G3D_DVFS_GOVERNOR_ONDEMAND,
-		"ondemand",
-		gpu_dvfs_governor_ondemand,
-		NULL
-	},
 };
 
 void gpu_dvfs_update_start_clk(int governor_type, int clk)
@@ -104,7 +89,6 @@ void *gpu_dvfs_get_governor_info(void)
 	return &governor_info;
 }
 
-#ifndef BUILD_ONLY_ONDEMAND_GOV
 static int gpu_dvfs_governor_default(struct exynos_context *platform, int utilization)
 {
 	DVFS_ASSERT(platform);
@@ -293,48 +277,6 @@ static int gpu_dvfs_governor_dynamic(struct exynos_context *platform, int utiliz
 
 	return 0;
 }
-#endif
-
-static int gpu_dvfs_governor_ondemand(struct exynos_context *platform, int utilization)
-{
-	int max_clock_lev, min_clock_lev;
-	DVFS_ASSERT(platform);
-	max_clock_lev = gpu_dvfs_get_level(platform->gpu_max_clock);
-	min_clock_lev = gpu_dvfs_get_level(platform->gpu_min_clock);
-
-	/* Check for frequency increase */
-	if (utilization >= gpu_up_threshold) {
-
-		/* if we are already at full speed then break out early */
-		if (platform->step == max_clock_lev)
-			return 0;
-
-		if (!gpu_boost) {
-			platform->step--;
-			if (platform->step < max_clock_lev)
-				platform->step = max_clock_lev;
-		} else {
-			platform->step = max_clock_lev;
-		}
-
-		return 0;
-	}
-
-	/*
-	 * if we cannot reduce the frequency anymore, break out early
-	 */
-	if (platform->step == min_clock_lev)
-		return 0;
-
-	/* Check for frequency decrease */
-	if (utilization < gpu_down_threshold)
-		platform->step++;
-
-	if (platform->step > min_clock_lev)
-		platform->step = min_clock_lev;
-
-	return 0;
-}
 
 void ipa_mali_dvfs_requested(unsigned int freq);
 int gpu_dvfs_decide_next_freq(struct kbase_device *kbdev, int utilization)
@@ -402,8 +344,6 @@ int gpu_dvfs_governor_setting(struct exynos_context *platform, int governor_type
 
 int gpu_dvfs_governor_init(struct kbase_device *kbdev)
 {
-	int governor_type = G3D_DVFS_GOVERNOR_ONDEMAND;
-	struct exynos_context *platform = (struct exynos_context *) kbdev->platform_context;
 
 	DVFS_ASSERT(platform);
 
