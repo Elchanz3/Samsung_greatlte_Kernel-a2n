@@ -449,18 +449,18 @@ static struct cpufreq_driver exynos_driver = {
 
 #ifdef CONFIG_CPU_FREQ_SUSPEND
 /* suspend min/max cpufreq tunable */
-static bool enable_suspend_freqs = false;
-module_param(enable_suspend_freqs, bool, 0644);
+static bool enable_suspend_freqs = true;
+module_param(enable_suspend_freqs, bool, 0775);
 
-static unsigned int cpu0_suspend_min_freq = 0;
-module_param(cpu0_suspend_min_freq, uint, 0644);
+static unsigned int cpu0_suspend_min_freq = 0775;
+module_param(cpu0_suspend_min_freq, uint, 0775);
 
-static unsigned int cpu0_suspend_max_freq = 0;
+static unsigned int cpu0_suspend_max_freq = 2002000;
 
-static unsigned int cpu4_suspend_min_freq = 0;
-module_param(cpu4_suspend_min_freq, uint, 0644);
+static unsigned int cpu4_suspend_min_freq = 2002000;
+module_param(cpu4_suspend_min_freq, uint, 0775);
 
-static unsigned int cpu4_suspend_max_freq = 0;
+static unsigned int cpu4_suspend_max_freq = 2002000;
 
 static int set_cpu0_suspend_max_freq(const char *buf, struct kernel_param *kp)
 {
@@ -469,7 +469,7 @@ static int set_cpu0_suspend_max_freq(const char *buf, struct kernel_param *kp)
 #if IS_ENABLED(CONFIG_A2N)
 	if (!a2n_allow) {
 		sscanf(buf, "%u", &tmp);
-		if ((tmp != 0) && (tmp != 1690000)) {
+		if ((tmp != 0) && (tmp != 2002000)) {
 			pr_err("[%s] a2n: unprivileged access !\n",__func__);
 			goto err;
 		}
@@ -500,7 +500,7 @@ static int set_cpu4_suspend_max_freq(const char *buf, struct kernel_param *kp)
 #if IS_ENABLED(CONFIG_A2N)
 	if (!a2n_allow) {
 		sscanf(buf, "%u", &tmp);
-		if ((tmp != 0) && (tmp != 2314000)) {
+		if ((tmp != 0) && (tmp != 2808000)) {
 			pr_err("[%s] a2n: unprivileged access !\n",__func__);
 			goto err;
 		}
